@@ -1,0 +1,25 @@
+Projet ordo — HGA + Gurobi (Streamlit)
+======================================
+
+Structure
+---------
+  App.py              application Streamlit (à lancer)
+  ordo/               code : hga.py, instance.py, milp_gurobi.py, experiments.py
+  Solver/             instances Data_*.txt (dont Data_2_8_2)
+  .streamlit/         thème clair uniquement (pas de 2e App.py)
+
+Lancement
+---------
+  cd projet_final
+  pip install streamlit pandas altair gurobipy   # gurobipy optionnel pour Z* exact
+  streamlit run App.py
+
+Page 9 (démo)
+-------------
+  Histoire figée Data_2_8_2 avec Z* sous règlement 1 h :
+    1) Z* Gurobi 1 h (référence)
+    2) Campagne 1 page 6 (base)   → tous les résultats
+    3) Page 7 lecture campagne 1
+    4) Campagne 2 page 6 (enrichi) → tous les résultats
+    5) Page 7 mise à jour + Gantt
+    6) Page 8 précédent ↔ courant
