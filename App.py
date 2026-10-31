@@ -937,30 +937,50 @@ if page == PAGES[0]:
 digraph G {
   rankdir=TB;
   bgcolor="transparent";
-  nodesep=0.5;
-  ranksep=0.55;
+  nodesep=0.55;
+  ranksep=0.65;
+  fontname="Helvetica";
+
   node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12,
-        color="#94a3b8", fillcolor="#ffffff", margin="0.22,0.14"];
+        color="#94a3b8", fillcolor="#ffffff", margin="0.25,0.16"];
   edge [color="#64748b", arrowsize=0.75, fontname="Helvetica", fontsize=10];
+
+  // Nœuds spéciaux
+  start [label="Début", shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.6, fixedsize=true];
+  end   [label="Fin",   shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.6, fixedsize=true];
 
   O  [label="0 · Overview\\norganisation & flux", fillcolor="#dbeafe", color="#2563eb", penwidth=2];
   P  [label="1 → 5 · Pédagogie\\nproblème · MILP · codage · HGA · init"];
-  S6 [label="6 · Paramétrage\\nsimulations multi-paramètres\\n→ meilleur réglage"];
-  S7 [label="7 · Résultats\\nZ* / HGA des 3 objectifs\\n(meilleur réglage courant)"];
-  S8 [label="8 · Amélioration\\nhistorique dynamique\\nprécédent ↔ courant"];
-  S9 [label="9 · DÉMO\\nZ* Gurobi 1 h (réel)\\n+ HGA · conclusions\\nSolver/Data_2_8_2",
+  S6 [label="6 · Paramétrage\\nsimulations multi-paramètres\\n(produit cartésien)"];
+  S7 [label="7 · Résultats\\nZ* / HGA des 3 objectifs\\n+ Gantt + Convergence"];
+  S8 [label="8 · Historique\\nprécédent ↔ courant"];
+  S9 [label="9 · DÉMO\\nData_2_8_2 · Z* 1 h\\n(précalculé)",
       fillcolor="#0f2a43", fontcolor="white", color="#0f2a43", penwidth=2];
 
+  // Décision
+  decision [label="meilleur Best ?", shape=diamond, style="filled", fillcolor="#fef3c7",
+            color="#d97706", fontsize=11, width=1.6, height=1.0];
+
+  // Flux principal
+  start -> O;
   O -> P;
   O -> S6;
-  O -> S7;
-  O -> S8;
   O -> S9;
 
-  S6 -> S7 [label="  1er meilleur  "];
-  S6 -> S8 [label="  si plus meilleur  ", style=dashed];
-  S9 -> S7 [label="  Z* 1 h  ", style=dashed];
-  S9 -> S8 [label="  référence  ", style=dashed];
+  // Parcours expérimental
+  S6 -> decision [label=" produit cartésien "];
+  decision -> S7 [label=" oui "];
+  decision -> S8 [label=" gain ultérieur ", style=dashed];
+
+  // Démo
+  S9 -> S6 [label=" campagne 1 & 2 ", style=dashed];
+  S9 -> S7 [label=" Z* 1 h ", style=dashed];
+  S9 -> S8 [label=" référence ", style=dashed];
+
+  // Retours vers la fin
+  S7 -> end;
+  S8 -> end;
+  P  -> end;
 }
 """, use_container_width=True)
 
@@ -970,10 +990,10 @@ digraph G {
         st.markdown("Pages **1–5** : comprendre le problème, le MILP, le codage HGA et l’initialisation.")
     with c2:
         st.markdown("##### Expériences")
-        st.markdown("**6** lance les simulations. Le **meilleur** réglage alimente **7**. Tout gain ultérieur va dans **8**.")
+        st.markdown("**6** lance les simulations (produit cartésien). Le **meilleur** réglage alimente **7**. Tout gain ultérieur va dans **8**.")
     with c3:
         st.markdown("##### Démo Z* 1 h")
-        st.markdown("**9** calcule **vraiment** Z* (Gurobi, limite **3600 s**) et le HGA sur **Solver/Data_2_8_2**.")
+        st.markdown("**9** présente la démo **précalculée** sur **Solver/Data_2_8_2** (Z* Gurobi 1 h + campagnes HGA).")
 
     st.markdown("---")
     st.header("Le problème (article)")
