@@ -293,6 +293,14 @@ PRECOMPUTED_1H = [
 
 
 
+# ----- Libellé complet des paramètres du best (mêmes 12 paramètres que la page 6) -----
+def _full_params(pop, gmax, n_mut, crossover, mut_ops, n_elite):
+    d = dict(pop=pop, gmax=gmax, n_mut=n_mut, pc=1.0, pm=1.0, p_ls=1.0, n_ls=50, n_elite=n_elite,
+             d_ins=1.0, d_swap=1.0, crossover=crossover, mut_ops=mut_ops)
+    order = ["pop", "gmax", "n_mut", "pc", "pm", "p_ls", "n_ls", "n_elite", "d_ins", "d_swap", "crossover", "mut_ops"]
+    return " · ".join(f"{k}={d[k]}" for k in order)
+
+
 # ----- Démo page 9 : grilles de combinaisons (comme page 6 après Simuler) -----
 # Instance Data_2_8_2, Z* 1 h : makespan 83.5403 OPTIMAL ; weighted 223.3545 ; assist 210.3124
 # Campagne 1 : base article + variation n_mut × crossover (6 combinaisons × 5 runs)
@@ -335,9 +343,9 @@ PRECOMPUTED_COMBOS_C2 = [
     {"objectif": "assist", "pop": 20, "gmax": 100, "mut_ops": "…+pm_day+assist_flip", "Best": 210.3103, "Mean": 210.3200, "ARPD (%)": 0.0046, "Succès (%)": 100.0, "Gap vs Z* (%)": -0.001},
 ]
 PRECOMPUTED_BEST_C2 = {
-    "makespan": {"label": "pop=20 · gmax=100 · mut enrichi · uniform · n_elite=2", "Best": 83.5403, "Mean": 83.5403, "ARPD (%)": 0.0, "Succès (%)": 100.0, "Gap vs Z* (%)": 0.0},
-    "weighted": {"label": "pop=20 · gmax=100 · mut enrichi · uniform · n_elite=2", "Best": 220.9338, "Mean": 220.9338, "ARPD (%)": 0.0, "Succès (%)": 100.0, "Gap vs Z* (%)": -1.0838},
-    "assist": {"label": "pop=20 · gmax=100 · mut+assist_flip · uniform · n_elite=2", "Best": 210.3103, "Mean": 210.3200, "ARPD (%)": 0.0046, "Succès (%)": 100.0, "Gap vs Z* (%)": -0.001},
+    "makespan": {"label": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day", 2), "Best": 83.5403, "Mean": 83.5403, "ARPD (%)": 0.0, "Succès (%)": 100.0, "Gap vs Z* (%)": 0.0},
+    "weighted": {"label": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day", 2), "Best": 220.9338, "Mean": 220.9338, "ARPD (%)": 0.0, "Succès (%)": 100.0, "Gap vs Z* (%)": -1.0838},
+    "assist": {"label": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day+assist_flip", 2), "Best": 210.3103, "Mean": 210.3200, "ARPD (%)": 0.0046, "Succès (%)": 100.0, "Gap vs Z* (%)": -0.001},
 }
 
 def show_precomputed_table(title="Z* Gurobi × 3 objectifs + HGA — Data_2_8_2", data=None, hga_label="HGA"):
@@ -379,32 +387,32 @@ inst = get_inst(FILE, LKW)
 # ------------------------------------------------------------------ Base vs HGA amélioré (page 8) — Data_2_8_2, 8 runs
 PRECOMPUTED_IMPROVED = [
     {"config": "base", "objectif": "makespan",
-     "params": "pop=10 · gmax=50 · n_mut=1 · mut=worst_machine · xover=one_point",
+     "params": _full_params(10, 50, 1, "one_point", "worst_machine", 1),
      "Z*_Gurobi": 83.5403, "prouvé": True,
      "HGA_best": 83.5403, "HGA_mean": 84.1422, "HGA_worst": 85.9976, "HGA_sd": 1.0430,
      "Gap vs Z* (%)": 0.0, "ARPD (%)": 0.7206, "Succès (%)": 75.0, "temps_HGA_moy_s": 0.175},
     {"config": "amélioré", "objectif": "makespan",
-     "params": "pop=20 · gmax=100 · n_mut=3 · mut=worst_machine+swap+insert+pm_day · xover=uniform · n_elite=2",
+     "params": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day", 2),
      "Z*_Gurobi": 83.5403, "prouvé": True,
      "HGA_best": 83.5403, "HGA_mean": 83.5403, "HGA_worst": 83.5403, "HGA_sd": 0.0,
      "Gap vs Z* (%)": 0.0, "ARPD (%)": 0.0, "Succès (%)": 100.0, "temps_HGA_moy_s": 0.342},
     {"config": "base", "objectif": "weighted",
-     "params": "pop=10 · gmax=50 · n_mut=1 · mut=worst_machine · xover=one_point",
+     "params": _full_params(10, 50, 1, "one_point", "worst_machine", 1),
      "Z*_Gurobi": 223.3545, "prouvé": False,
      "HGA_best": 223.9731, "HGA_mean": 224.9578, "HGA_worst": 226.6008, "HGA_sd": 0.7731,
      "Gap vs Z* (%)": 0.2769, "ARPD (%)": 0.7178, "Succès (%)": 0.0, "temps_HGA_moy_s": 0.218},
     {"config": "amélioré", "objectif": "weighted",
-     "params": "pop=20 · gmax=100 · n_mut=3 · mut=worst_machine+swap+insert+pm_day · xover=uniform · n_elite=2",
+     "params": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day", 2),
      "Z*_Gurobi": 223.3545, "prouvé": False,
      "HGA_best": 220.9338, "HGA_mean": 220.9338, "HGA_worst": 220.9338, "HGA_sd": 0.0,
      "Gap vs Z* (%)": -1.0838, "ARPD (%)": 0.0, "Succès (%)": 100.0, "temps_HGA_moy_s": 0.377},
     {"config": "base", "objectif": "assist",
-     "params": "pop=10 · gmax=50 · n_mut=1 · mut=worst_machine · xover=one_point",
+     "params": _full_params(10, 50, 1, "one_point", "worst_machine", 1),
      "Z*_Gurobi": 210.3124, "prouvé": False,
      "HGA_best": 213.6598, "HGA_mean": 216.4537, "HGA_worst": 224.6429, "HGA_sd": 3.25,
      "Gap vs Z* (%)": 1.5916, "ARPD (%)": 2.9201, "Succès (%)": 0.0, "temps_HGA_moy_s": 0.55},
     {"config": "amélioré", "objectif": "assist",
-     "params": "pop=20 · gmax=100 · n_mut=3 · mut=…+pm_day+assist_flip · xover=uniform · n_elite=2",
+     "params": _full_params(20, 100, 3, "uniform", "worst_machine+swap+insert+pm_day+assist_flip", 2),
      "Z*_Gurobi": 210.3124, "prouvé": False,
      "HGA_best": 210.3103, "HGA_mean": 210.3200, "HGA_worst": 210.3770, "HGA_sd": 0.022,
      "Gap vs Z* (%)": -0.001, "ARPD (%)": 0.0046, "Succès (%)": 100.0, "temps_HGA_moy_s": 0.90},
@@ -1468,7 +1476,10 @@ elif page == PAGES[6]:
                 pd_ = pdict(obj, **{kk: vv for kk, vv in base.items() if kk not in skip})
                 for pn, v in combo.items():
                     pd_[pn] = tuple(v.split("+")) if pn == "mut_ops" else v
-                label = " · ".join(f"{k}={v}" for k, v in combo.items())
+                ALLP = ["pop", "gmax", "n_mut", "pc", "pm", "p_ls", "n_ls", "n_elite", "d_ins", "d_swap", "crossover", "mut_ops"]
+                label = " · ".join(
+                    f"{k}={'+'.join(pd_[k]) if isinstance(pd_[k], tuple) else pd_[k]}" for k in ALLP
+                )
                 runs = runs_cached(FILE, LKW, key(pd_), R)
                 row, B = stat_row(FILE, LKW, pd_, runs, Zx, proven)
                 best_run = min(runs, key=lambda r: r["obj"])
@@ -1714,7 +1725,8 @@ elif page == PAGES[9]:
         )
     st.markdown("##### Sélection automatique (sortie page 6 → entrée page 7)")
     st.dataframe(pd.DataFrame([
-        {"objectif": OBJ_LABEL[o], **{k: v for k, v in PRECOMPUTED_BEST_C1[o].items()}}
+        {"objectif": OBJ_LABEL[o], **{k: v for k, v in PRECOMPUTED_BEST_C1[o].items()},
+         "params": _full_params(10, 50, PRECOMPUTED_BEST_C1[o]['n_mut'], PRECOMPUTED_BEST_C1[o]['crossover'], "worst_machine", 1)}
         for o in OBJS
     ]).round(4), use_container_width=True)
     st.success(
@@ -1736,7 +1748,7 @@ elif page == PAGES[9]:
         {"objectif": OBJ_LABEL[o], "Best": PRECOMPUTED_BEST_C1[o]["Best"], "Mean": PRECOMPUTED_BEST_C1[o]["Mean"],
          "ARPD (%)": PRECOMPUTED_BEST_C1[o]["ARPD (%)"], "Succès (%)": PRECOMPUTED_BEST_C1[o]["Succès (%)"],
          "Gap vs Z* 1 h (%)": PRECOMPUTED_BEST_C1[o]["Gap vs Z* (%)"],
-         "params": f"n_mut={PRECOMPUTED_BEST_C1[o]['n_mut']} · {PRECOMPUTED_BEST_C1[o]['crossover']}"}
+         "params": _full_params(10, 50, PRECOMPUTED_BEST_C1[o]['n_mut'], PRECOMPUTED_BEST_C1[o]['crossover'], "worst_machine", 1)}
         for o in OBJS
     ]).round(4), use_container_width=True)
     st.markdown("""
@@ -1815,7 +1827,7 @@ Ci-dessous : illustration **fixe** sur **Solver/Data_2_8_2** uniquement (indépe
     st.dataframe(pd.DataFrame(PRECOMPUTED_COMBOS_C2).round(4), use_container_width=True)
     st.markdown("##### Meilleur retenu par objectif (→ met à jour page 7 **et** page 8)")
     st.dataframe(pd.DataFrame([
-        {"objectif": OBJ_LABEL[o], **PRECOMPUTED_BEST_C2[o]}
+        {"objectif": OBJ_LABEL[o], **{k: v for k, v in PRECOMPUTED_BEST_C2[o].items() if k != "label"}, "params": PRECOMPUTED_BEST_C2[o]["label"]}
         for o in OBJS
     ]).round(4), use_container_width=True)
     st.success(
