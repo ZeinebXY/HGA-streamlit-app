@@ -203,7 +203,7 @@ SUBS = {
     PAGES[6]: "Simulations multi-paramètres → alimente pages 7 et 8",
     PAGES[7]: "Résultats courants + Gantt + convergence (dynamique)",
     PAGES[8]: "Historique + Gantt/convergence du réglage courant",
-    PAGES[9]: "Histoire 6→7→6→8 — campagnes base puis enrichi, Z*, Gantt (démo figée)",
+    PAGES[9]: "Démo figée indépendante — Data_2_8_2, Z* 1 h, grilles précalculées (aucune liaison dynamique)",
 }
 st.sidebar.markdown("<div class='side-label'>Navigation</div>", unsafe_allow_html=True)
 page = st.sidebar.radio("Navigation", PAGES, label_visibility="collapsed", key="page")
@@ -938,46 +938,39 @@ digraph G {
   rankdir=TB;
   bgcolor="transparent";
   nodesep=0.55;
-  ranksep=0.65;
+  ranksep=0.70;
   fontname="Helvetica";
 
   node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=12,
         color="#94a3b8", fillcolor="#ffffff", margin="0.25,0.16"];
   edge [color="#64748b", arrowsize=0.75, fontname="Helvetica", fontsize=10];
 
-  // Nœuds spéciaux
-  start [label="Début", shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.6, fixedsize=true];
-  end   [label="Fin",   shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.6, fixedsize=true];
+  start [label="Début", shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.55, fixedsize=true];
+  end   [label="Fin",   shape=circle, style=filled, fillcolor="#0f2a43", fontcolor="white", width=0.55, fixedsize=true];
 
   O  [label="0 · Overview\\norganisation & flux", fillcolor="#dbeafe", color="#2563eb", penwidth=2];
   P  [label="1 → 5 · Pédagogie\\nproblème · MILP · codage · HGA · init"];
   S6 [label="6 · Paramétrage\\nsimulations multi-paramètres\\n(produit cartésien)"];
-  S7 [label="7 · Résultats\\nZ* / HGA des 3 objectifs\\n+ Gantt + Convergence"];
+  S7 [label="7 · Résultats\\nZ* / HGA + Gantt + Convergence"];
   S8 [label="8 · Historique\\nprécédent ↔ courant"];
-  S9 [label="9 · DÉMO\\nData_2_8_2 · Z* 1 h\\n(précalculé)",
+  S9 [label="9 · DÉMO (figée)\\nData_2_8_2 · Z* 1 h\\nprécalculé — indépendant",
       fillcolor="#0f2a43", fontcolor="white", color="#0f2a43", penwidth=2];
 
-  // Décision
   decision [label="meilleur Best ?", shape=diamond, style="filled", fillcolor="#fef3c7",
-            color="#d97706", fontsize=11, width=1.6, height=1.0];
+            color="#d97706", fontsize=11, width=1.5, height=0.95];
 
-  // Flux principal
   start -> O;
   O -> P;
   O -> S6;
   O -> S9;
 
-  // Parcours expérimental
   S6 -> decision [label=" produit cartésien "];
   decision -> S7 [label=" oui "];
   decision -> S8 [label=" gain ultérieur ", style=dashed];
 
-  // Démo
-  S9 -> S6 [label=" campagne 1 & 2 ", style=dashed];
-  S9 -> S7 [label=" Z* 1 h ", style=dashed];
-  S9 -> S8 [label=" référence ", style=dashed];
+  // Page 9 = démo isolée (aucune flèche vers 6 / 7 / 8)
+  S9 -> end [style=dashed, label=" démo seule "];
 
-  // Retours vers la fin
   S7 -> end;
   S8 -> end;
   P  -> end;
@@ -989,11 +982,11 @@ digraph G {
         st.markdown("##### Pédagogie")
         st.markdown("Pages **1–5** : comprendre le problème, le MILP, le codage HGA et l’initialisation.")
     with c2:
-        st.markdown("##### Expériences")
+        st.markdown("##### Expériences (dynamiques)")
         st.markdown("**6** lance les simulations (produit cartésien). Le **meilleur** réglage alimente **7**. Tout gain ultérieur va dans **8**.")
     with c3:
-        st.markdown("##### Démo Z* 1 h")
-        st.markdown("**9** présente la démo **précalculée** sur **Solver/Data_2_8_2** (Z* Gurobi 1 h + campagnes HGA).")
+        st.markdown("##### Démo figée (indépendante)")
+        st.markdown("**9** est une **démo purement précalculée** sur `Data_2_8_2`. Elle n’écrit rien dans les pages 6 / 7 / 8.")
 
     st.markdown("---")
     st.header("Le problème (article)")
@@ -1658,7 +1651,7 @@ elif page == PAGES[8]:
     st.markdown("---")
     show_improved_comparison()
     st.markdown(
-        "**Conclusion** : chaque gain de Best (pages 6 ou 9) fait glisser l’ancien réglage en « précédent » "
+        "**Conclusion** : chaque gain de Best (page 6) fait glisser l’ancien réglage en « précédent » "
         "et place le nouveau en « courant », avec Gantt/convergence associés lorsqu’ils sont disponibles."
     )
 
@@ -1668,12 +1661,11 @@ elif page == PAGES[9]:
     st.markdown(
         """
 <div class="tour-card">
-  <h4>Chapitre 9 — Simulation guidée (page 6 → 7 → 6 → 8)</h4>
+  <h4>Chapitre 9 — Démo figée (indépendante)</h4>
   <div class="body">
-  <b>Présentation fixe</b> — changer de fichier à gauche ne modifie pas cette page.<br/>  Comme si vous aviez cliqué <b>Simuler</b> : grilles de combinaisons en page 6,
-  sélection du <b>meilleur</b> par objectif → page 7 (chiffres + <b>3 Gantt</b> + convergences),
-  puis une 2ᵉ campagne page 6 plus forte → page 8 (précédent ↔ courant, Gantt + convergences).
-  <b>Z* Gurobi = règlement 1 h</b> partout. Exemple <b>figé</b> sur <b>Data_2_8_2</b> (ne dépend pas de l'instance de la barre latérale). Aucun bouton ici : tout est affiché.
+  <b>Présentation purement illustrative</b> — cette page n’écrit rien dans les pages 6 / 7 / 8 et ne dépend pas de l’instance choisie à gauche.<br/>
+  Elle rejoue une histoire précalculée sur <b>Data_2_8_2</b> (Z* Gurobi 1 h, grilles cartésiennes, Gantt, convergences).<br/>
+  <b>Aucun bouton, aucun calcul dynamique</b> : tout est déjà calculé. Les pages 6–8 restent le simulateur interactif séparé.
   </div>
 </div>
 """,
